@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+/**
+ * @author Donghuang
+ * @date Nov 15, 2020 22:50:05
+ */
+-->
+<mapper namespace="me.chyxion.tigon.mybatis.mapper.UserMapper">
+
+    <select id="listByName" resultType="me.chyxion.tigon.mybatis.entity.User">
+        select <include refid="cols" />
+        from <include refid="table" />
+        where name = #{name}
+    </select>
+</mapper>

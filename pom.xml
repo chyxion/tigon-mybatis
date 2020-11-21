@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>me.chyxion.tigon</groupId>
+    <artifactId>tigon-mybatis-proj</artifactId>
+    <version>0.0.1</version>
+    <packaging>pom</packaging>
+    <name>Tigon MyBatis Project</name>
+    <description>Tigon MyBatis Project</description>
+
+    <licenses>
+        <license>
+            <name>The MIT License (MIT)</name>
+            <url>http://mit-license.org</url>
+        </license>
+    </licenses>
+
+	<developers>
+		<developer>
+			<id>chyxion</id>
+			<name>Shaun Chyxion</name>
+			<email>chyxion@163.com</email>
+			<url>http://chyxion.github.io</url>
+            <timezone>+8</timezone>
+		</developer>
+	</developers>
+
+    <scm>
+        <url>https://github.com/chyxion/tigon-mybatis</url>
+        <connection>scm:git:https://github.com/chyxion/tigon-mybatis.git</connection>
+        <developerConnection>scm:git:git@github.com:chyxion/tigon-mybatis.git</developerConnection>
+    </scm>
+
+    <modules>
+        <module>common</module>
+        <module>core</module>
+    </modules>
+</project>

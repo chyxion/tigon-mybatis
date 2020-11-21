@@ -1,0 +1,304 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC
+    "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="Tigon">
+
+    <!-- Search -->
+    <sql id="search">
+        <choose>
+        <when test="s instanceof me.chyxion.tigon.mybatis.Search">
+            <if test="s.hasCriterion()">
+                where <include refid="Tigon.assemble" />
+            </if>
+
+            <if test="!_parameter.containsKey(&quot;__is_count__&quot;)">
+                <include refid="Tigon.orderBy" />
+                <include refid="Tigon.limit" />
+            </if>
+        </when>
+        <when test="s != null">
+            where <include refid="primaryKey" /> = #{s}
+        </when>
+        </choose>
+    </sql>
+    <!--/ Search -->
+
+    <!-- Search Assemble -->
+    <sql id="assemble">
+        <foreach collection="s.assemble()" item="it">
+            <choose>
+                <when test="it instanceof me.chyxion.tigon.mybatis.SqlFragment">
+                    ${it}
+                </when>
+                <otherwise>
+                    #{it}
+                </otherwise>
+            </choose>
+        </foreach>
+    </sql>
+    <!--/ Search Assemble -->
+
+    <!-- Order By -->
+    <sql id="orderBy">
+        <if test="!s.orders().isEmpty()">
+            order by
+            <foreach collection="s.orders()" index="__col__"
+                     item="__direction__" separator=", ">
+                ${__col__} ${__direction__}
+            </foreach>
+        </if>
+    </sql>
+    <!--/ Order By -->
+
+    <!-- Limit -->
+    <sql id="limit">
+        <choose>
+            <when test="s.offset() != null and s.limit() != null">
+                <bind name="__offset__" value="s.offset()" />
+                <bind name="__limit__" value="s.limit()" />
+                limit #{__offset__}, #{__limit__}
+            </when>
+            <when test="s.limit() != null">
+                <bind name="__limit__" value="s.limit()" />
+                limit #{__limit__}
+            </when>
+        </choose>
+    </sql>
+    <!--/ Limit -->
+
+    <!-- Search For Count, Ignore Orders And Limit -->
+    <sql id="searchForCount">
+        <bind name="__is_count_dummy__" value="_parameter.put('__is_count__', true)" />
+        <include refid="Tigon.search" />
+    </sql>
+    <!--/ Search For Count -->
+
+    <!-- Insert -->
+    <sql id="insert">
+        insert into <include refid="table" />
+        (<include refid="cols" />)
+        values
+        <choose>
+            <!-- Model -->
+            <when test="_parameter.containsKey(&quot;model&quot;)">
+                <include refid="Tigon._insertValues" />
+            </when>
+            <!-- Models -->
+            <otherwise>
+                <foreach item="model" collection="models" separator=", ">
+                    <include refid="Tigon._insertValues" />
+                </foreach>
+            </otherwise>
+        </choose>
+    </sql>
+    <!--/ Insert -->
+
+    <sql id="_insertValues">
+        <if test="model instanceof me.chyxion.tigon.mybatis.BasicEntity">
+            <bind name="__before_insert_dummy__" value="model.beforeInsert()" />
+        </if>
+        <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@insertMap(model)"
+                 item="__val__" open="(" separator=", " close=")">
+            <include refid="Tigon.__val__" />
+        </foreach>
+    </sql>
+
+    <!-- Update -->
+    <sql id="update">
+        update <include refid="table" />
+        set
+        <choose>
+            <when test="model instanceof java.util.Map">
+                <bind name="__update_map__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@toColMap(model)" />
+                <foreach collection="__update_map__" index="__m_col__" item="__val__" separator=", ">
+                    ${__m_col__} =
+                    <include refid="Tigon.__val__" />
+                </foreach>
+            </when>
+            <otherwise>
+                <if test="model instanceof me.chyxion.tigon.mybatis.BasicEntity">
+                    <bind name="__before_update_dummy__" value="model.beforeUpdate()" />
+                </if>
+                <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@updateMap(model)"
+                         index="__m_col__" item="__val__" separator=", ">
+                    ${__m_col__} =
+                    <include refid="Tigon.__val__" />
+                </foreach>
+            </otherwise>
+        </choose>
+
+        <choose>
+        <when test="_parameter.containsKey(&quot;s&quot;)">
+            <include refid="Tigon.search" />
+        </when>
+        <otherwise>
+            <bind name="__primary_key_value__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@primaryKeyValue(model)" />
+            where <include refid="primaryKey" /> = #{__primary_key_value__}
+        </otherwise>
+        </choose>
+    </sql>
+    <!--/ Update -->
+
+    <!-- Set Cols null -->
+    <sql id="setNull">
+        update <include refid="table" />
+        set
+        <choose>
+        <when test="_parameter.containsKey(&quot;cols&quot;)">
+            <foreach item="col" collection="cols" separator=", ">
+                ${col} = null
+            </foreach>
+        </when>
+        <otherwise>
+            ${col} = null
+        </otherwise>
+        </choose>
+        <include refid="Tigon.search" />
+    </sql>
+    <!--/ Set Cols null -->
+
+    <!-- Delete -->
+    <sql id="delete">
+        delete from
+        <include refid="table" />
+        <include refid="Tigon.search" />
+    </sql>
+    <!--/ Delete -->
+
+    <!-- Exists -->
+    <sql id="exists">
+        select
+        <![CDATA[
+          if (count(*) > 0, 1, 0)
+        ]]>
+        from
+        <include refid="table" />
+        <include refid="Tigon.searchForCount" />
+    </sql>
+
+    <sql id="exists" databaseId="oracle">
+        select count(*)
+        from
+        <include refid="table" />
+        <include refid="Tigon.searchForCount" />
+    </sql>
+    <!--/ Exists -->
+
+    <!-- Find One -->
+    <sql id="find">
+        select
+        <include refid="cols" />
+        from
+        <include refid="table" />
+        <include refid="Tigon.search" />
+    </sql>
+    <!--/ Find One -->
+
+    <!-- List -->
+    <sql id="list">
+        select
+        <include refid="cols" />
+        from
+        <include refid="table" />
+        <include refid="Tigon.search" />
+    </sql>
+
+    <!-- List for oracle pagination -->
+    <sql id="list" databaseId="oracle">
+        select *
+        <if test="s instanceof me.chyxion.tigon.mybatis.Search and (s.offset() != null or s.limit() != null)">
+            from (select <include refid="cols" />,
+            row_number() over (
+            <choose>
+                <when test="!s.orders().isEmpty()">
+                    <include refid="Tigon.orderBy" />
+                </when>
+                <otherwise>
+                    order by 1
+                </otherwise>
+            </choose>
+            ) - 1 row_number__
+        </if>
+
+        from <include refid="table" />
+
+        <choose>
+            <when test="s instanceof me.chyxion.tigon.mybatis.Search">
+                <if test="s.hasCriterion()">
+                    where <include refid="Tigon.assemble" />
+                </if>
+            </when>
+            <when test="s != null">
+                where <include refid="primaryKey" /> = #{s}
+            </when>
+        </choose>
+
+        <!-- No offset and limit, place order by here -->
+        <if test="s instanceof me.chyxion.tigon.mybatis.Search and s.offset() == null and s.limit() == null">
+            <include refid="Tigon.orderBy" />
+        </if>
+
+        <if test="s instanceof me.chyxion.tigon.mybatis.Search and (s.offset() != null or s.limit() != null)">
+            ) t
+            where <choose>
+            <when test="s.offset() != null and s.limit() != null">
+                <bind name="__offset__" value="s.offset()" />
+                <bind name="__limit__" value="s.limit()" />
+                <![CDATA[
+                  row_number__ >= #{__offset__} and row_number__ < #{__offset__} + #{__limit__}
+                ]]>
+            </when>
+            <when test="s.offset() != null">
+                <bind name="__offset__" value="s.offset()" />
+                <![CDATA[
+                  row_number__ >= #{__offset__}
+                ]]>
+            </when>
+            <when test="s.limit() != null">
+                <bind name="__limit__" value="s.limit()" />
+                <![CDATA[
+                  row_number__ < #{__limit__}
+                ]]>
+            </when>
+        </choose>
+        </if>
+    </sql>
+    <!--/ List -->
+
+    <!-- Select Col -->
+    <sql id="selectCol">
+        <bind name="__col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(col)" />
+        select ${__col__} from
+        <include refid="table" />
+        <include refid="Tigon.search" />
+    </sql>
+    <!--/ Select Col -->
+
+    <!-- Count -->
+    <sql id="count">
+        select count(*) from
+        <include refid="table" />
+        <include refid="Tigon.searchForCount" />
+    </sql>
+    <!--/ Count -->
+
+    <sql id="__val__">
+        <choose>
+            <when test="__val__ instanceof me.chyxion.tigon.mybatis.SqlParam">
+                <choose>
+                    <when test="__val__.isRaw()">
+                        ${__val__.value}
+                    </when>
+                    <otherwise>
+                        #{__val__.value}
+                    </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                #{__val__}
+            </otherwise>
+        </choose>
+    </sql>
+
+</mapper>
