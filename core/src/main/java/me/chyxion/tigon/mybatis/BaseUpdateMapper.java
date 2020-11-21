@@ -49,7 +49,7 @@ public interface BaseUpdateMapper<PrimaryKey, Entity>
      * @return update result
      */
     int setNull(@Param(PARAM_COL_KEY) String col, @Param(PARAM_SEARCH_KEY) PrimaryKey primaryKey);
-    
+
     /**
      * set col null
      * @param col col
@@ -65,7 +65,7 @@ public interface BaseUpdateMapper<PrimaryKey, Entity>
      * @return update result
      */
     int setNull(@Param(PARAM_COLS_KEY) String[] cols, @Param(PARAM_SEARCH_KEY) PrimaryKey primaryKey);
-    
+
     /**
      * set cols null
      * @param cols cols
@@ -73,7 +73,7 @@ public interface BaseUpdateMapper<PrimaryKey, Entity>
      * @return update result
      */
     int setNull(@Param(PARAM_COLS_KEY) String[] cols, @Param(PARAM_SEARCH_KEY) Search search);
-    
+
     /**
      * set cols null
      * @param cols cols
@@ -81,7 +81,7 @@ public interface BaseUpdateMapper<PrimaryKey, Entity>
      * @return update result
      */
     int setNull(@Param(PARAM_COLS_KEY) Collection<String> cols, @Param(PARAM_SEARCH_KEY) PrimaryKey primaryKey);
-    
+
     /**
      * set cols null
      * @param cols cols

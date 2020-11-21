@@ -19,6 +19,31 @@
         <project.build.sourceEncoding>utf-8</project.build.sourceEncoding>
     </properties>
 
+    <url>https://github.com/chyxion/tigon-mybatis</url>
+
+    <licenses>
+        <license>
+            <name>The MIT License (MIT)</name>
+            <url>http://mit-license.org</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>chyxion</id>
+            <name>Shaun Chyxion</name>
+            <email>chyxion@163.com</email>
+            <url>http://chyxion.github.io</url>
+            <timezone>+8</timezone>
+        </developer>
+    </developers>
+
+    <scm>
+        <url>https://github.com/chyxion/tigon-mybatis</url>
+        <connection>scm:git:https://github.com/chyxion/tigon-mybatis.git</connection>
+        <developerConnection>scm:git:git@github.com:chyxion/tigon-mybatis.git</developerConnection>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>

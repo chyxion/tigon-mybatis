@@ -291,4 +291,3 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
         private Class<SuperMapper<?>> mapperClass;
     }
 }
-

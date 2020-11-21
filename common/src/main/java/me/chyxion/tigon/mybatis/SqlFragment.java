@@ -11,9 +11,9 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public class SqlFragment implements Serializable {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private final String sql;
+    private final String sql;
 
     /**
      * {@inheritDoc}

@@ -12,6 +12,8 @@
     <name>Tigon MyBatis Project</name>
     <description>Tigon MyBatis Project</description>
 
+    <url>https://github.com/chyxion/tigon-mybatis</url>
+
     <licenses>
         <license>
             <name>The MIT License (MIT)</name>
@@ -19,15 +21,15 @@
         </license>
     </licenses>
 
-	<developers>
-		<developer>
-			<id>chyxion</id>
-			<name>Shaun Chyxion</name>
-			<email>chyxion@163.com</email>
-			<url>http://chyxion.github.io</url>
+    <developers>
+        <developer>
+            <id>chyxion</id>
+            <name>Shaun Chyxion</name>
+            <email>chyxion@163.com</email>
+            <url>http://chyxion.github.io</url>
             <timezone>+8</timezone>
-		</developer>
-	</developers>
+        </developer>
+    </developers>
 
     <scm>
         <url>https://github.com/chyxion/tigon-mybatis</url>

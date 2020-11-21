@@ -34,4 +34,3 @@
         <appender-ref ref="File" />
     </root>
 </configuration>
-

@@ -75,7 +75,7 @@ public class Search implements Serializable {
      */
     public Search() {
     }
-    
+
     /**
      * @param value id value
      */
@@ -380,7 +380,7 @@ public class Search implements Serializable {
     public Search notIn(final String col, final Object[] values) {
         return notIn(col, Arrays.asList(values));
     }
-    
+
     /**
      * col is not not in values
      *
@@ -392,7 +392,7 @@ public class Search implements Serializable {
         criteria.add(new Criterion(NOT_IN, col, values));
         return this;
     }
-    
+
     /**
      * col is less than value
      *

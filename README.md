@@ -260,4 +260,3 @@ final User user = mapper.find(new Search(User.ACCOUNT, "donghuang"));
 开源界已经有很多MyBatis相关的项目了，包括官方出品的`mybatis-dynamic-sql`，这玩意把我可恶心坏了。最近接触的项目里有在用，看着那一坨一坨的完全没动力碰的垃圾代码，全世界都在看我们的笑话，Java什么时候变成这样了，让玩PHP，玩C#，玩GO，玩Ruby的同学怎么看待我们，哎卧槽。
 
 魔幻2020年就快结束了，熬夜把拖延了好几年的待办事项做个了结，后续如果有人气，我会考虑把生成代码的逻辑一并释放出来。
-
