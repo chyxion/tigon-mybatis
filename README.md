@@ -6,7 +6,7 @@ Tigon MyBatis为Spring工程中MyBatis的Mapper提供增强，主要有以下特
 
 - Spring和MyBatis的前提下，仅依赖`org.slf4j:slf4j-api`
 - 代码又少又壮，绝不做多余的事情
-- 仅需Mapper继承接口，实现`增``删``改``查`，无额外配置，爽到没女朋友
+- 仅需Mapper继承接口，实现`增` `删` `改` `查`，无额外配置，爽到没女朋友
 - 用完即走，毫不留恋
 
 ### 开始使用
