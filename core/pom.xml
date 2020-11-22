@@ -22,7 +22,7 @@
         <spring-boot.version>2.3.4.RELEASE</spring-boot.version>
     </properties>
 
-    <url>https://github.com/chyxion/tigon-mybatis</url>
+    <url>https://gitee.com/chyxion/tigon-mybatis</url>
 
     <licenses>
         <license>
@@ -42,9 +42,9 @@
     </developers>
 
     <scm>
-        <url>https://github.com/chyxion/tigon-mybatis</url>
-        <connection>scm:git:https://github.com/chyxion/tigon-mybatis.git</connection>
-        <developerConnection>scm:git:git@github.com:chyxion/tigon-mybatis.git</developerConnection>
+        <url>https://gitee.com/chyxion/tigon-mybatis</url>
+        <connection>scm:git:https://gitee.com/chyxion/tigon-mybatis.git</connection>
+        <developerConnection>scm:git:git@gitee.com:chyxion/tigon-mybatis.git</developerConnection>
     </scm>
 
     <dependencies>
