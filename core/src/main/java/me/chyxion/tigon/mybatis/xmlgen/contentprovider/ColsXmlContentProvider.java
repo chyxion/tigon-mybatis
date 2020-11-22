@@ -8,7 +8,7 @@ import me.chyxion.tigon.mybatis.xmlgen.XmlGenArg;
  * @date Jan 09, 2020 18:05:43
  */
 @Slf4j
-public class ColsXmlContentProvider extends SqlXmlContentProvider {
+public class ColsXmlContentProvider extends XmlContentProvider {
 
     /**
      * {@inheritDoc}

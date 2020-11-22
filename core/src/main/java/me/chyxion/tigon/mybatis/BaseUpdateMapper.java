@@ -3,11 +3,14 @@ package me.chyxion.tigon.mybatis;
 import java.util.Map;
 import java.util.Collection;
 import org.apache.ibatis.annotations.Param;
+import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 
 /**
  * @author Donghuang
  * @date Oct 17, 2015 2:09:20 PM
  */
+@MapperXmlEl(tag = MapperXmlEl.Tag.UPDATE, id = "update", include = "Tigon.update")
+@MapperXmlEl(tag = MapperXmlEl.Tag.UPDATE, id = "setNull", include = "Tigon.setNull")
 @SuppressWarnings("hiding")
 public interface BaseUpdateMapper<PrimaryKey, Entity>
     extends SuperMapper<Entity> {

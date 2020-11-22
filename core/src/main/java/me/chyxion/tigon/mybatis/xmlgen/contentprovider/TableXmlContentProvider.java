@@ -9,7 +9,7 @@ import me.chyxion.tigon.mybatis.xmlgen.XmlGenArg;
  * @date Feb 21, 2017 17:42:03
  */
 @Slf4j
-public class TableXmlContentProvider extends SqlXmlContentProvider {
+public class TableXmlContentProvider extends XmlContentProvider {
 
     /**
      * {@inheritDoc}

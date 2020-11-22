@@ -1,11 +1,13 @@
 package me.chyxion.tigon.mybatis;
 
 import org.apache.ibatis.annotations.Param;
+import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 
 /**
  * @author Donghuang
  * @date Oct 17, 2015 2:09:20 PM
  */
+@MapperXmlEl(tag = MapperXmlEl.Tag.DELETE, id = "delete", include = "Tigon.delete")
 @SuppressWarnings("hiding")
 public interface BaseDeleteMapper<PrimaryKey, Entity>
     extends SuperMapper<Entity> {

@@ -1,7 +1,7 @@
 package me.chyxion.tigon.mybatis.xmlgen.contentprovider;
 
-import me.chyxion.tigon.mybatis.util.EntityUtils;
 import lombok.extern.slf4j.Slf4j;
+import me.chyxion.tigon.mybatis.util.EntityUtils;
 import me.chyxion.tigon.mybatis.xmlgen.XmlGenArg;
 
 /**
@@ -9,7 +9,7 @@ import me.chyxion.tigon.mybatis.xmlgen.XmlGenArg;
  * @date Jan 09, 2020 18:05:43
  */
 @Slf4j
-public class PrimaryKeyXmlContentProvider extends SqlXmlContentProvider {
+public class PrimaryKeyXmlContentProvider extends XmlContentProvider {
 
     /**
      * {@inheritDoc}

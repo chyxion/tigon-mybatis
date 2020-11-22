@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.chyxion.tigon</groupId>
     <artifactId>tigon-mybatis-common</artifactId>
-    <version>0.0.1</version>
+    <version>0.0.2</version>
     <packaging>jar</packaging>
     <name>Tigon MyBatis Common</name>
     <description>Tigon MyBatis Common</description>

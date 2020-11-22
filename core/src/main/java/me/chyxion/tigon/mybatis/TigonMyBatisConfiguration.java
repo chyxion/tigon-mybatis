@@ -1,6 +1,7 @@
 package me.chyxion.tigon.mybatis;
 
 import lombok.*;
+import java.util.*;
 import org.w3c.dom.Element;
 import java.io.InputStream;
 import org.w3c.dom.Document;
@@ -28,9 +29,8 @@ import org.apache.ibatis.builder.MapperBuilderAssistant;
 import me.chyxion.tigon.mybatis.xmlgen.contentprovider.*;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
+import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 import org.springframework.context.event.ContextRefreshedEvent;
-import me.chyxion.tigon.mybatis.xmlgen.annotation.SqlXmlElement;
-import me.chyxion.tigon.mybatis.xmlgen.annotation.CrudXmlElement;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
@@ -39,21 +39,6 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
  */
 @Order
 @Slf4j
-@SqlXmlElement(id = "table", contentProvider = TableXmlContentProvider.class)
-@SqlXmlElement(id = "primaryKey", contentProvider = PrimaryKeyXmlContentProvider.class)
-@SqlXmlElement(id = "cols", contentProvider = ColsXmlContentProvider.class)
-
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "count", resultType = "int", include = "Tigon.count")
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "exists", resultType = "boolean", include = "Tigon.exists")
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "find", resultType = CrudXmlElement.RESULT_TYPE_ENTITY, include = "Tigon.find")
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "findCol", resultType = "object", include = "Tigon.selectCol")
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "list", resultType = CrudXmlElement.RESULT_TYPE_ENTITY, include = "Tigon.list")
-@CrudXmlElement(tag = CrudXmlElement.Tag.SELECT, id = "listCol", resultType = "object", include = "Tigon.selectCol")
-
-@CrudXmlElement(tag = CrudXmlElement.Tag.INSERT, id = "insert", include = "Tigon.insert")
-@CrudXmlElement(tag = CrudXmlElement.Tag.UPDATE, id = "update", include = "Tigon.update")
-@CrudXmlElement(tag = CrudXmlElement.Tag.UPDATE, id = "setNull", include = "Tigon.setNull")
-@CrudXmlElement(tag = CrudXmlElement.Tag.DELETE, id = "delete", include = "Tigon.delete")
 public class TigonMyBatisConfiguration implements ApplicationListener<ContextRefreshedEvent> {
 
     /**
@@ -61,8 +46,9 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
      */
     @Override
     public void onApplicationEvent(final ContextRefreshedEvent event) {
+        val applicationContext = event.getApplicationContext();
         val mapSqlSessionFactories =
-                event.getApplicationContext()
+                applicationContext
                     .getBeansOfType(SqlSessionFactory.class);
 
         if (mapSqlSessionFactories.isEmpty()) {
@@ -93,15 +79,16 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
 
             val argGenXml = new ArgGenXml(
                     new XMLMapperEntityResolver(),
-                    config,
-                    TigonMyBatisConfiguration.class.getAnnotationsByType(SqlXmlElement.class),
-                    TigonMyBatisConfiguration.class.getAnnotationsByType(CrudXmlElement.class));
+                    config);
 
             for (val mapper : config.getMapperRegistry().getMappers()) {
                 if (SuperMapper.class.isAssignableFrom(mapper)) {
                     log.info("Generate mapper class [{}].", mapper);
                     argGenXml.setMapperClass((Class<SuperMapper<?>>) mapper);
+                    argGenXml.setMapperXmlEls(getMapperXmlEls(mapper));
+
                     val bytesMapper = genMapperXml(argGenXml);
+
                     if (bytesMapper != null) {
                         log.debug("Mapper XML [{}] generated.", new String(bytesMapper));
                         new XMLMapperBuilder(
@@ -146,31 +133,29 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
         val docEl = doc.getDocumentElement();
 
         boolean updated = false;
-        for (val element : argGenXml.getSqlXmlElements()) {
+
+        for (val element : argGenXml.getMapperXmlEls()) {
             var id = namespacePrefix + element.id();
             log.debug("Generate SQL fragment [{}].", id);
 
-            if (sqlFragments.containsKey(id)) {
-                log.info("SQL fragment [{}] existed, ignore generate.", id);
-                continue;
+            // SQL
+            if (element.tag() == MapperXmlEl.Tag.SQL) {
+                if (sqlFragments.containsKey(id)) {
+                    log.info("SQL fragment [{}] existed, ignore generate.", id);
+                    continue;
+                }
             }
+            // CRUD
+            else {
+                if (configuration.hasStatement(id, false)) {
+                    log.info("SQL statement [{}] existed, ignore generate.", id);
+                    continue;
+                }
 
-            docEl.appendChild(newProvider(element).element(element, xmlProcessArg));
-            updated = true;
-        }
-
-        for (val element : argGenXml.getCrudXmlElements()) {
-            val id = namespacePrefix + element.id();
-            log.debug("Generate SQL statement [{}].", id);
-
-            if (configuration.hasStatement(id, false)) {
-                log.info("SQL statement [{}] existed, ignore generate.", id);
-                continue;
-            }
-
-            if (isIncompleteStatement(configuration, id)) {
-                log.info("Incomplete SQL statement [{}] existed, ignore generate.", id);
-                continue;
+                if (isIncompleteStatement(configuration, id)) {
+                    log.info("Incomplete SQL statement [{}] existed, ignore generate.", id);
+                    continue;
+                }
             }
 
             docEl.appendChild(xmlEl(element, xmlProcessArg));
@@ -237,33 +222,54 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
     }
 
     @SneakyThrows
-    SqlXmlContentProvider newProvider(final SqlXmlElement el) {
+    XmlContentProvider newProvider(final MapperXmlEl el) {
         return el.contentProvider().newInstance();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @SneakyThrows
-    Element xmlEl(final CrudXmlElement element, final XmlGenArg arg) {
+    List<MapperXmlEl> getMapperXmlEls(final Class<?> clazz) {
+        val interfaces = new LinkedHashSet<Class<?>>(8);
+        getAllInterfaces(interfaces, clazz);
+        val mapperXmlElsRtn = new ArrayList<MapperXmlEl>(16);
+
+        for (val it : interfaces) {
+            for (val mapperXmlEl : it.getAnnotationsByType(MapperXmlEl.class)) {
+                mapperXmlElsRtn.add(mapperXmlEl);
+            }
+        }
+
+        val setEls = new HashSet<String>(mapperXmlElsRtn.size());
+        mapperXmlElsRtn.removeIf(e -> !setEls.add(e.tag() + e.id()));
+
+        return mapperXmlElsRtn;
+    }
+
+     void getAllInterfaces(final Set<Class<?>> interfaces, final Class<?> clazz) {
+        interfaces.add(clazz);
+         for (val it : clazz.getInterfaces()) {
+            getAllInterfaces(interfaces, it);
+         }
+     }
+
+    Element xmlEl(final MapperXmlEl element, final XmlGenArg arg) {
         val doc = arg.getDocument();
-        val el = doc.createElement(element.tag().name().toLowerCase());
+        val tag = element.tag();
+        val el = doc.createElement(tag.name().toLowerCase());
         el.setAttribute("id", element.id());
 
         // result type
         val resultType = element.resultType();
         if (StrUtils.isNotBlank(resultType)) {
             el.setAttribute("resultType",
-                    CrudXmlElement.RESULT_TYPE_ENTITY.equals(resultType) ?
+                    MapperXmlEl.RESULT_TYPE_ENTITY.equals(resultType) ?
                             arg.getEntityClass().getName() : resultType);
         }
 
         // insert
-        if (element.tag() == CrudXmlElement.Tag.INSERT) {
+        if (tag == MapperXmlEl.Tag.INSERT) {
             val entityClass = arg.getEntityClass();
             val ugkAnnotation =
                     AnnotationUtils.findAnnotation(
-                            entityClass, UseGeneratedKeys.class);
+                        entityClass, UseGeneratedKeys.class);
 
             if (ugkAnnotation != null) {
                 el.setAttribute("useGeneratedKeys", "true");
@@ -274,8 +280,25 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
             }
         }
 
+        val contentProvider = element.contentProvider();
+
+        if (contentProvider != MapperXmlEl.EmptyProvider.class) {
+            val content = newProvider(element).content(arg);
+
+            if (content.isText()) {
+                el.setTextContent(content.getContent());
+                return el;
+            }
+
+            content.getElements().forEach(el::appendChild);
+            return el;
+        }
+
+        val include = element.include();
+        AssertUtils.state(StrUtils.isNotBlank(include),
+            "@MapperXmlEl#contentProvider or @MapperXmlEl#include must be specified");
         val includeEl = doc.createElement("include");
-        includeEl.setAttribute("refid", element.include());
+        includeEl.setAttribute("refid", include);
         el.appendChild(includeEl);
         return el;
     }
@@ -286,8 +309,7 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
     private static class ArgGenXml {
         private final XMLMapperEntityResolver xmlMapperEntityResolver;
         private final Configuration configuration;
-        private final SqlXmlElement[] sqlXmlElements;
-        private final CrudXmlElement[] crudXmlElements;
         private Class<SuperMapper<?>> mapperClass;
+        private List<MapperXmlEl> mapperXmlEls;
     }
 }
