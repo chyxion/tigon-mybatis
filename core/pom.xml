@@ -7,7 +7,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>me.chyxion.tigon</groupId>
     <artifactId>tigon-mybatis</artifactId>
-    <version>0.0.2</version>
+    <version>0.0.3</version>
     <packaging>jar</packaging>
     <name>Tigon MyBatis Core</name>
     <description>Tigon MyBatis Core</description>
@@ -55,7 +55,7 @@
         <dependency>
             <groupId>me.chyxion.tigon</groupId>
             <artifactId>tigon-mybatis-common</artifactId>
-            <version>0.0.2</version>
+            <version>0.0.3</version>
         </dependency>
         <dependency>
             <groupId>org.mybatis</groupId>
