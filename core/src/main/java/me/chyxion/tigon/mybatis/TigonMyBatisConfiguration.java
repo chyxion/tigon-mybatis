@@ -30,6 +30,7 @@ import me.chyxion.tigon.mybatis.xmlgen.contentprovider.*;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
+import me.chyxion.tigon.mybatis.event.TigonMyBatisReadyEvent;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
@@ -101,6 +102,7 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
             }
             config.getMappedStatements();
         }
+        applicationContext.publishEvent(new TigonMyBatisReadyEvent(applicationContext));
     }
 
     /**
