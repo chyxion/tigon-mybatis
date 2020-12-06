@@ -12,7 +12,7 @@ import me.chyxion.tigon.mybatis.xmlgen.contentprovider.XmlContentProvider;
  * @date Sep 11, 2019 09:59:32
  */
 @Inherited
-@Repeatable(CrudXmlEls.class)
+@Repeatable(MapperXmlEls.class)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MapperXmlEl {
 

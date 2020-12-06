@@ -168,13 +168,12 @@
 
     <!-- Exists -->
     <sql id="exists">
-        select
-        <![CDATA[
-          if (count(*) > 0, 1, 0)
-        ]]>
-        from
-        <include refid="table" />
-        <include refid="Tigon.searchForCount" />
+        select exists (
+            select 1
+            from
+            <include refid="table" />
+            <include refid="Tigon.searchForCount" />
+        )
     </sql>
 
     <sql id="exists" databaseId="oracle">
