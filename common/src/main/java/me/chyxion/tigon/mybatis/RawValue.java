@@ -6,7 +6,12 @@ import static java.lang.annotation.ElementType.FIELD;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Mark field uses raw value
+ * Mark field uses raw value, for example:
+ *
+ * <pre>
+ * @RawValue("uuid()")
+ * private String globalKey;
+ * </pre>
  *
  * @author Donghuang
  * @date Dec 13, 2018 20:15:03

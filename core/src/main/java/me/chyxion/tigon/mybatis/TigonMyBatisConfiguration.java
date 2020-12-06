@@ -259,8 +259,9 @@ public class TigonMyBatisConfiguration implements InitializingBean {
     Element xmlEl(final MapperXmlEl element, final XmlGenArg arg) {
         val doc = arg.getDocument();
         val tag = element.tag();
+        val elId = element.id();
         val el = doc.createElement(tag.name().toLowerCase());
-        el.setAttribute("id", element.id());
+        el.setAttribute("id", elId);
 
         // result type
         val resultType = element.resultType();
@@ -300,11 +301,11 @@ public class TigonMyBatisConfiguration implements InitializingBean {
             return el;
         }
 
-        val include = element.include();
-        AssertUtils.state(StrUtils.isNotBlank(include),
-            "@MapperXmlEl#contentProvider or @MapperXmlEl#include must be specified");
         val includeEl = doc.createElement("include");
-        includeEl.setAttribute("refid", include);
+        val include = element.include();
+        includeEl.setAttribute("refid",
+            StrUtils.isNotBlank(include) ?
+                include : "Tigon." + elId);
         el.appendChild(includeEl);
         return el;
     }

@@ -3,13 +3,14 @@ package me.chyxion.tigon.mybatis;
 import java.util.Collection;
 import org.apache.ibatis.annotations.Param;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
+import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.INSERT;
 
 /**
  * @author Donghuang
  * @date Oct 17, 2015 2:09:20 PM
  */
 @SuppressWarnings("hiding")
-@MapperXmlEl(tag = MapperXmlEl.Tag.INSERT, id = "insert", include = "Tigon.insert")
+@MapperXmlEl(tag = INSERT, id = "insert")
 public interface BaseInsertMapper<Entity>
     extends SuperMapper<Entity> {
 
