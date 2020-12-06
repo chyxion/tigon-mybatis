@@ -3,18 +3,20 @@ package me.chyxion.tigon.mybatis;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
+import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.SELECT;
+import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.RESULT_TYPE_ENTITY;
 
 /**
  * @author Donghuang
  * @date Oct 17, 2015 2:09:20 PM
  */
 @SuppressWarnings("hiding")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "count", resultType = "int", include = "Tigon.count")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "exists", resultType = "boolean", include = "Tigon.exists")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "find", resultType = MapperXmlEl.RESULT_TYPE_ENTITY, include = "Tigon.find")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "findCol", resultType = "object", include = "Tigon.selectCol")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "list", resultType = MapperXmlEl.RESULT_TYPE_ENTITY, include = "Tigon.list")
-@MapperXmlEl(tag = MapperXmlEl.Tag.SELECT, id = "listCol", resultType = "object", include = "Tigon.selectCol")
+@MapperXmlEl(tag = SELECT, id = "count", resultType = "int")
+@MapperXmlEl(tag = SELECT, id = "exists", resultType = "boolean")
+@MapperXmlEl(tag = SELECT, id = "find", resultType = RESULT_TYPE_ENTITY)
+@MapperXmlEl(tag = SELECT, id = "findCol", resultType = "object", include = "Tigon.selectCol")
+@MapperXmlEl(tag = SELECT, id = "list", resultType = RESULT_TYPE_ENTITY)
+@MapperXmlEl(tag = SELECT, id = "listCol", resultType = "object", include = "Tigon.selectCol")
 public interface BaseQueryMapper<PrimaryKey, Entity>
     extends SuperMapper<Entity> {
 

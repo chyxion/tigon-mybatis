@@ -107,6 +107,8 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
         }
 
         val userDonghuang = mapper.findByAccount(donghuang);
+        Assert.state(userDonghuang != null, "Test find failed");
+        Assert.state(userDonghuang.getAccessKey().length() == 16, "Test @RawValue failed");
         userDonghuang.setCity("Beijing");
         userDonghuang.setAccount("UpdateWillBeIgnored");
         mapper.update(userDonghuang);
