@@ -4,7 +4,6 @@
 
 Tigon MyBatis为Spring工程中MyBatis的Mapper提供增强，主要有以下特点
 
-- Spring和MyBatis的前提下，仅依赖`org.slf4j:slf4j-api`
 - 代码又少又壮，绝不做多余的事情
 - 仅需Mapper继承接口，实现`增` `删` `改` `查`，无额外配置，爽到没女朋友
 - 用完即走，毫不留恋
@@ -20,10 +19,6 @@ Tigon MyBatis为Spring工程中MyBatis的Mapper提供增强，主要有以下特
   <version>0.0.4</version>
 </dependency>
 ```
-
-- SpringBoot项目，无需其他操作
-- 一般的Spring项目，手动注册Bean *me.chyxion.tigon.mybatis.TigonMyBatisConfiguration*
-- 业务Mapper继承*me.chyxion.tigon.mybatis.BaseMapper*或相关衍生Mapper，*Base(Query, Insert, Update, Delete)Mapper*
 
 ### 使用示例
 
@@ -100,7 +95,6 @@ private UserMapper mapper;
 
 ```java
 final User user = new User();
-
 user.setName("Donghuang");
 user.setAccount("donghuang");
 user.setMobile("137647788xx");
@@ -113,7 +107,36 @@ user.setRemark("Uncle Donghuang");
 user.setCreatedBy("donghuang");
 user.setCreatedAt(new Date());
 
+// single insert
 mapper.insert(user);
+
+final User user1 = new User();
+user1.setName("Gemily");
+user1.setAccount("gemily");
+user1.setMobile("15770780xxx");
+user1.setPassword(RandomStringUtils.randomAlphanumeric(16));
+user1.setGender(User.Gender.FEMALE);
+user1.setBirthDate(DateUtils.parseDate("1990-06-06"));
+user1.setCity("Hangzhou");
+user1.setActive(true);
+user1.setCreatedBy("donghuang");
+user1.setCreatedAt(new Date());
+
+final User user2 = new User();
+user2.setName("Luffy");
+user2.setAccount("luffy");
+user2.setMobile("137647799xx");
+user2.setPassword(RandomStringUtils.randomAlphanumeric(16));
+user2.setGender(User.Gender.MALE);
+user2.setBirthDate(DateUtils.parseDate("1997-07-07"));
+user2.setCity("East sea");
+user2.setActive(true);
+user2.setRemark("Luffy");
+user2.setCreatedBy("donghuang");
+user2.setCreatedAt(new Date());
+
+// batch insert
+mapper.insert(Arrays.asList(user1, user2));
 ```
 
 ##### II. 查询
@@ -225,6 +248,17 @@ mapper.delete(1);
 mapper.delete(new Search("id", 1));
 ```
 
+##### V. 杂项
+
+除了上面说到的一些基础增删改查操作，还有一些实用功能，如`@Transient` `@UseGeneratedKeys` `@NoPrimaryKey` `@NotUpdateWhenNull` `@RawValue`等注解，插入、更新前回调，以及支持扩展自定义的方法等。
+
+### 配置说明
+
+- SpringBoot项目，无需其他操作，引入依赖即可
+- Spring项目，注册Bean *me.chyxion.tigon.mybatis.TigonMyBatisConfiguration*
+- 业务Mapper继承*me.chyxion.tigon.mybatis.BaseMapper*或相关衍生Mapper，*Base(Query, Insert, Update, Delete)Mapper*
+
+
 ### 原理
 
 Tigon MyBatis并**不改变**MyBatis相关功能，所做的只是在程序**启动期间**检测业务Mapper接口，如果继承了相关`BaseMapper.java`，则注入相关方法`MappedStatement`，具体逻辑参见源码，超简单，超幼稚。
@@ -259,4 +293,4 @@ final User user = mapper.find(new Search(User.ACCOUNT, "donghuang"));
 
 开源界已经有很多MyBatis相关的项目了，包括官方出品的`mybatis-dynamic-sql`，这玩意把我可恶心坏了。最近接触的项目里有在用，看着那一坨一坨的完全没动力碰的垃圾代码，全世界都在看我们的笑话，Java什么时候变成这样了，让玩PHP，玩C#，玩GO，玩Ruby的同学怎么看待我们，哎卧槽。
 
-魔幻2020年就快结束了，熬夜把拖延了好几年的待办事项做个了结，后续如果有人气，我会考虑把生成代码的逻辑一并释放出来。
+魔幻2020年就快结束了，熬夜把拖延了好几年的待办事项做个了结，后续如果还有精力，我会考虑把生成代码的逻辑一并释放出来。

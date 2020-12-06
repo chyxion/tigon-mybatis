@@ -173,6 +173,11 @@ public final class EntityUtils {
                     return false;
                 }
 
+                // do not update field marks @PrimaryKey
+                if (field.isAnnotationPresent(PrimaryKey.class)) {
+                    return false;
+                }
+
                 // do not update field marks @NotUpdate
                 if (field.isAnnotationPresent(NotUpdate.class)) {
                     return false;
