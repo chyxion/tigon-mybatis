@@ -18,41 +18,44 @@ import me.chyxion.tigon.mybatis.util.StrUtils;
 import org.apache.ibatis.session.Configuration;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.parsers.DocumentBuilderFactory;
-import org.springframework.core.annotation.Order;
 import me.chyxion.tigon.mybatis.util.AssertUtils;
 import me.chyxion.tigon.mybatis.xmlgen.XmlGenArg;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.reflection.SystemMetaObject;
+import org.springframework.context.ApplicationContext;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
-import org.springframework.context.ApplicationListener;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import me.chyxion.tigon.mybatis.xmlgen.contentprovider.*;
+import org.springframework.beans.factory.InitializingBean;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
-import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 import me.chyxion.tigon.mybatis.event.TigonMyBatisReadyEvent;
-import org.springframework.context.event.ContextRefreshedEvent;
+import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
+import org.springframework.beans.factory.annotation.Autowired;
+import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
  * @author Donghuang
  * @date Jul 12, 2014 3:36:13 PM
  */
-@Order
 @Slf4j
-public class TigonMyBatisConfiguration implements ApplicationListener<ContextRefreshedEvent> {
+public class TigonMyBatisConfiguration implements InitializingBean {
+    @Autowired
+    private ApplicationContext applicationContext;
+    @Autowired(required = false)
+    private SqlSessionFactory[] sqlSessionFactories;
+    /**
+     * After mapper beans initialized
+     */
+    @Autowired(required = false)
+    private SuperMapper<?>[] mappers;
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public void onApplicationEvent(final ContextRefreshedEvent event) {
-        val applicationContext = event.getApplicationContext();
-        val mapSqlSessionFactories =
-                applicationContext
-                    .getBeansOfType(SqlSessionFactory.class);
-
-        if (mapSqlSessionFactories.isEmpty()) {
+    public void afterPropertiesSet() {
+        if (sqlSessionFactories == null || sqlSessionFactories.length == 0) {
             log.warn("No 'org.apache.ibatis.session.SqlSessionFactory' bean found, Tigon MyBatis ignored.");
             return;
         }
@@ -65,7 +68,7 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
         val resource = resources[0];
         log.info("Tigon namespace XML resource [{}] found.", resource);
 
-        for (val sqlSessionFactory : mapSqlSessionFactories.values()) {
+        for (val sqlSessionFactory : sqlSessionFactories) {
             log.info("Register sql session factory [{}] tigon-mybatis.xml.", sqlSessionFactory);
             val config = sqlSessionFactory.getConfiguration();
             config.setMapUnderscoreToCamelCase(true);
@@ -100,9 +103,10 @@ public class TigonMyBatisConfiguration implements ApplicationListener<ContextRef
                     }
                 }
             }
-            config.getMappedStatements();
         }
-        applicationContext.publishEvent(new TigonMyBatisReadyEvent(applicationContext));
+
+        applicationContext.publishEvent(
+            new TigonMyBatisReadyEvent(applicationContext));
     }
 
     /**

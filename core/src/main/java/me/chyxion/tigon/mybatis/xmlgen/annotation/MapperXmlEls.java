@@ -10,7 +10,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Inherited
 @Retention(RetentionPolicy.RUNTIME)
-public @interface CrudXmlEls {
+public @interface MapperXmlEls {
 
     /**
      * grouped connotation values
