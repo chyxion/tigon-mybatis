@@ -7,8 +7,8 @@
     <!-- Search -->
     <sql id="search">
         <choose>
-        <when test="s instanceof me.chyxion.tigon.mybatis.Search">
-            <if test="s.hasCriterion()">
+        <when test="__search__ instanceof me.chyxion.tigon.mybatis.Search">
+            <if test="__search__.hasCriterion()">
                 where <include refid="Tigon.assemble" />
             </if>
 
@@ -17,8 +17,8 @@
                 <include refid="Tigon.limit" />
             </if>
         </when>
-        <when test="s != null">
-            where <include refid="primaryKey" /> = #{s}
+        <when test="__search__ != null">
+            where <include refid="primaryKey" /> = #{__search__}
         </when>
         </choose>
     </sql>
@@ -26,7 +26,7 @@
 
     <!-- Search Assemble -->
     <sql id="assemble">
-        <foreach collection="s.assemble()" item="it">
+        <foreach collection="__search__.assemble()" item="it">
             <choose>
                 <when test="it instanceof me.chyxion.tigon.mybatis.SqlFragment">
                     ${it}
@@ -41,9 +41,9 @@
 
     <!-- Order By -->
     <sql id="orderBy">
-        <if test="!s.orders().isEmpty()">
+        <if test="!__search__.orders().isEmpty()">
             order by
-            <foreach collection="s.orders()" index="__col__"
+            <foreach collection="__search__.orders()" index="__col__"
                      item="__direction__" separator=", ">
                 ${__col__} ${__direction__}
             </foreach>
@@ -54,13 +54,13 @@
     <!-- Limit -->
     <sql id="limit">
         <choose>
-            <when test="s.offset() != null and s.limit() != null">
-                <bind name="__offset__" value="s.offset()" />
-                <bind name="__limit__" value="s.limit()" />
+            <when test="__search__.offset() != null and __search__.limit() != null">
+                <bind name="__offset__" value="__search__.offset()" />
+                <bind name="__limit__" value="__search__.limit()" />
                 limit #{__offset__}, #{__limit__}
             </when>
-            <when test="s.limit() != null">
-                <bind name="__limit__" value="s.limit()" />
+            <when test="__search__.limit() != null">
+                <bind name="__limit__" value="__search__.limit()" />
                 limit #{__limit__}
             </when>
         </choose>
@@ -81,12 +81,12 @@
         values
         <choose>
             <!-- Model -->
-            <when test="_parameter.containsKey(&quot;model&quot;)">
+            <when test="_parameter.containsKey(&quot;__model__&quot;)">
                 <include refid="Tigon._insertValues" />
             </when>
             <!-- Models -->
             <otherwise>
-                <foreach item="model" collection="models" separator=", ">
+                <foreach item="__model__" collection="__models__" separator=", ">
                     <include refid="Tigon._insertValues" />
                 </foreach>
             </otherwise>
@@ -95,10 +95,10 @@
     <!--/ Insert -->
 
     <sql id="_insertValues">
-        <if test="model instanceof me.chyxion.tigon.mybatis.BasicEntity">
-            <bind name="__before_insert_dummy__" value="model.beforeInsert()" />
+        <if test="__model__ instanceof me.chyxion.tigon.mybatis.BasicEntity">
+            <bind name="__before_insert_dummy__" value="__model__.beforeInsert()" />
         </if>
-        <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@insertMap(model)"
+        <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@insertMap(__model__)"
                  item="__val__" open="(" separator=", " close=")">
             <include refid="Tigon.__val__" />
         </foreach>
@@ -109,18 +109,18 @@
         update <include refid="table" />
         set
         <choose>
-            <when test="model instanceof java.util.Map">
-                <bind name="__update_map__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@toColMap(model)" />
+            <when test="__model__ instanceof java.util.Map">
+                <bind name="__update_map__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@toColMap(__model__)" />
                 <foreach collection="__update_map__" index="__m_col__" item="__val__" separator=", ">
                     ${__m_col__} =
                     <include refid="Tigon.__val__" />
                 </foreach>
             </when>
             <otherwise>
-                <if test="model instanceof me.chyxion.tigon.mybatis.BasicEntity">
-                    <bind name="__before_update_dummy__" value="model.beforeUpdate()" />
+                <if test="__model__ instanceof me.chyxion.tigon.mybatis.BasicEntity">
+                    <bind name="__before_update_dummy__" value="__model__.beforeUpdate()" />
                 </if>
-                <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@updateMap(model)"
+                <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@updateMap(__model__)"
                          index="__m_col__" item="__val__" separator=", ">
                     ${__m_col__} =
                     <include refid="Tigon.__val__" />
@@ -129,11 +129,11 @@
         </choose>
 
         <choose>
-        <when test="_parameter.containsKey(&quot;s&quot;)">
+        <when test="_parameter.containsKey(&quot;__search__&quot;)">
             <include refid="Tigon.search" />
         </when>
         <otherwise>
-            <bind name="__primary_key_value__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@primaryKeyValue(model)" />
+            <bind name="__primary_key_value__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@primaryKeyValue(__model__)" />
             where <include refid="primaryKey" /> = #{__primary_key_value__}
         </otherwise>
         </choose>
@@ -145,13 +145,13 @@
         update <include refid="table" />
         set
         <choose>
-        <when test="_parameter.containsKey(&quot;cols&quot;)">
-            <foreach item="col" collection="cols" separator=", ">
-                ${col} = null
+        <when test="_parameter.containsKey(&quot;__cols__&quot;)">
+            <foreach item="__col__" collection="__cols__" separator=", ">
+                ${__col__} = null
             </foreach>
         </when>
         <otherwise>
-            ${col} = null
+            ${__col__} = null
         </otherwise>
         </choose>
         <include refid="Tigon.search" />
@@ -169,16 +169,14 @@
     <!-- Exists -->
     <sql id="exists">
         select exists (
-            select 1
-            from
+            select 1 from
             <include refid="table" />
             <include refid="Tigon.searchForCount" />
         )
     </sql>
 
     <sql id="exists" databaseId="oracle">
-        select count(*)
-        from
+        select count(*) from
         <include refid="table" />
         <include refid="Tigon.searchForCount" />
     </sql>
@@ -206,11 +204,11 @@
     <!-- List for oracle pagination -->
     <sql id="list" databaseId="oracle">
         select *
-        <if test="s instanceof me.chyxion.tigon.mybatis.Search and (s.offset() != null or s.limit() != null)">
+        <if test="__search__ instanceof me.chyxion.tigon.mybatis.Search and (__search__.offset() != null or __search__.limit() != null)">
             from (select <include refid="cols" />,
             row_number() over (
             <choose>
-                <when test="!s.orders().isEmpty()">
+                <when test="!__search__.orders().isEmpty()">
                     <include refid="Tigon.orderBy" />
                 </when>
                 <otherwise>
@@ -223,39 +221,39 @@
         from <include refid="table" />
 
         <choose>
-            <when test="s instanceof me.chyxion.tigon.mybatis.Search">
-                <if test="s.hasCriterion()">
+            <when test="__search__ instanceof me.chyxion.tigon.mybatis.Search">
+                <if test="__search__.hasCriterion()">
                     where <include refid="Tigon.assemble" />
                 </if>
             </when>
-            <when test="s != null">
-                where <include refid="primaryKey" /> = #{s}
+            <when test="__search__ != null">
+                where <include refid="primaryKey" /> = #{__search__}
             </when>
         </choose>
 
         <!-- No offset and limit, place order by here -->
-        <if test="s instanceof me.chyxion.tigon.mybatis.Search and s.offset() == null and s.limit() == null">
+        <if test="__search__ instanceof me.chyxion.tigon.mybatis.Search and __search__.offset() == null and __search__.limit() == null">
             <include refid="Tigon.orderBy" />
         </if>
 
-        <if test="s instanceof me.chyxion.tigon.mybatis.Search and (s.offset() != null or s.limit() != null)">
+        <if test="__search__ instanceof me.chyxion.tigon.mybatis.Search and (__search__.offset() != null or __search__.limit() != null)">
             ) t
             where <choose>
-            <when test="s.offset() != null and s.limit() != null">
-                <bind name="__offset__" value="s.offset()" />
-                <bind name="__limit__" value="s.limit()" />
+            <when test="__search__.offset() != null and __search__.limit() != null">
+                <bind name="__offset__" value="__search__.offset()" />
+                <bind name="__limit__" value="__search__.limit()" />
                 <![CDATA[
                   row_number__ >= #{__offset__} and row_number__ < #{__offset__} + #{__limit__}
                 ]]>
             </when>
-            <when test="s.offset() != null">
-                <bind name="__offset__" value="s.offset()" />
+            <when test="__search__.offset() != null">
+                <bind name="__offset__" value="__search__.offset()" />
                 <![CDATA[
                   row_number__ >= #{__offset__}
                 ]]>
             </when>
-            <when test="s.limit() != null">
-                <bind name="__limit__" value="s.limit()" />
+            <when test="__search__.limit() != null">
+                <bind name="__limit__" value="__search__.limit()" />
                 <![CDATA[
                   row_number__ < #{__limit__}
                 ]]>
@@ -267,8 +265,8 @@
 
     <!-- Select Col -->
     <sql id="selectCol">
-        <bind name="__col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(col)" />
-        select ${__col__} from
+        <bind name="__us_col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(__col__)" />
+        select ${__us_col__} from
         <include refid="table" />
         <include refid="Tigon.search" />
     </sql>

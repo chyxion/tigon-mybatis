@@ -8,6 +8,7 @@ import java.io.Serializable;
 import me.chyxion.tigon.mybatis.Table;
 import me.chyxion.tigon.mybatis.RawValue;
 import me.chyxion.tigon.mybatis.NotUpdate;
+import me.chyxion.tigon.mybatis.UseGeneratedKeys;
 
 /**
  * @author Donghuang
@@ -17,6 +18,7 @@ import me.chyxion.tigon.mybatis.NotUpdate;
 @Setter
 @ToString
 @Table("tb_user")
+@UseGeneratedKeys
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
 
