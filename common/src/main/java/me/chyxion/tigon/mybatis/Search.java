@@ -147,6 +147,10 @@ public class Search implements Serializable {
      * @return this
      */
     public Search eq(final String col, final Object value) {
+        if (value == null) {
+            return isNull(col);
+        }
+
         if (value instanceof Collection) {
             in(col, (Collection<?>) value);
         }
@@ -168,7 +172,8 @@ public class Search implements Serializable {
      * @return this
      */
     public Search isNull(final String col) {
-        return eq(col, null);
+        criteria.add(new Criterion(IS_NULL, col, Collections.emptyList()));
+        return this;
     }
 
     /**
