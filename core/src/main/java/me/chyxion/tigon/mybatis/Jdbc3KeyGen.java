@@ -96,13 +96,12 @@ class Jdbc3KeyGen implements KeyGenerator {
         if (objParams instanceof MapperMethod.ParamMap) {
             val mapParams = (Map<String, Object>) objParams;
 
-            val objModel = mapParams.get(SuperMapper.PARAM_MODEL_KEY);
-            if (objModel != null) {
-                return Arrays.asList(objModel);
+            if (mapParams.containsKey(SuperMapper.PARAM_MODEL_KEY)) {
+                return Arrays.asList(mapParams.get(SuperMapper.PARAM_MODEL_KEY));
             }
 
-            val objModels = mapParams.get(SuperMapper.PARAM_MODELS_KEY);
-            if (objModels != null) {
+            if (mapParams.containsKey(SuperMapper.PARAM_MODELS_KEY)) {
+                val objModels = mapParams.get(SuperMapper.PARAM_MODELS_KEY);
                 if (objModels.getClass().isArray()) {
                     return Arrays.asList((Object[]) objModels);
                 }
