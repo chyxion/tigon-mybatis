@@ -64,7 +64,7 @@ class Jdbc3KeyGen implements KeyGenerator {
             val rsmd = rs.getMetaData();
             if (rsmd.getColumnCount() >= keyProps.length) {
                 TypeHandler<?>[] typeHandlers = null;
-                for (Object model : getModels(params)) {
+                for (val model : getModels(params)) {
                     log.debug("Process model [{}] key.", model);
                     // there should be one row for each statement (also one for each params)
                     if (rs.next()) {
@@ -96,13 +96,12 @@ class Jdbc3KeyGen implements KeyGenerator {
         if (objParams instanceof MapperMethod.ParamMap) {
             val mapParams = (Map<String, Object>) objParams;
 
-            val objModel = mapParams.get(SuperMapper.PARAM_MODEL_KEY);
-            if (objModel != null) {
-                return Arrays.asList(objModel);
+            if (mapParams.containsKey(SuperMapper.PARAM_MODEL_KEY)) {
+                return Arrays.asList(mapParams.get(SuperMapper.PARAM_MODEL_KEY));
             }
 
-            val objModels = mapParams.get(SuperMapper.PARAM_MODELS_KEY);
-            if (objModels != null) {
+            if (mapParams.containsKey(SuperMapper.PARAM_MODELS_KEY)) {
+                val objModels = mapParams.get(SuperMapper.PARAM_MODELS_KEY);
                 if (objModels.getClass().isArray()) {
                     return Arrays.asList((Object[]) objModels);
                 }

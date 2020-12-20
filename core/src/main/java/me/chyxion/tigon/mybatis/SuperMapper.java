@@ -14,9 +14,9 @@ import me.chyxion.tigon.mybatis.xmlgen.contentprovider.TableXmlContentProvider;
 @MapperXmlEl(tag = SQL, id = "primaryKey", contentProvider = PrimaryKeyXmlContentProvider.class)
 @MapperXmlEl(tag = SQL, id = "cols", contentProvider = ColsXmlContentProvider.class)
 public interface SuperMapper<Enity> {
-    String PARAM_MODEL_KEY = "model";
-    String PARAM_MODELS_KEY = "models";
-    String PARAM_SEARCH_KEY = "s";
-    String PARAM_COL_KEY = "col";
-    String PARAM_COLS_KEY = "cols";
+    String PARAM_MODEL_KEY = "__model__";
+    String PARAM_MODELS_KEY = "__models__";
+    String PARAM_SEARCH_KEY = "__search__";
+    String PARAM_COL_KEY = "__col__";
+    String PARAM_COLS_KEY = "__cols__";
 }
