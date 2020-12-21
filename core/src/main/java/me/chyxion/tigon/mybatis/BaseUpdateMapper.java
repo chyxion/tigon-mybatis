@@ -13,8 +13,7 @@ import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.UPDATE;
 @SuppressWarnings("hiding")
 @MapperXmlEl(tag = UPDATE, id = "update")
 @MapperXmlEl(tag = UPDATE, id = "setNull")
-public interface BaseUpdateMapper<PrimaryKey, Entity>
-    extends SuperMapper<Entity> {
+public interface BaseUpdateMapper<PrimaryKey, Entity> extends SuperMapper<Entity> {
 
     /**
      * update entity by primary key

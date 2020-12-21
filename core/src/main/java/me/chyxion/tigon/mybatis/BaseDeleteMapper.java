@@ -10,8 +10,7 @@ import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.DELETE;
  */
 @SuppressWarnings("hiding")
 @MapperXmlEl(tag = DELETE, id = "delete")
-public interface BaseDeleteMapper<PrimaryKey, Entity>
-    extends SuperMapper<Entity> {
+public interface BaseDeleteMapper<PrimaryKey, Entity> extends SuperMapper<Entity> {
 
     /**
      * delete by search

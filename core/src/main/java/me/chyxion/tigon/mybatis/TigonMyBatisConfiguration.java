@@ -32,6 +32,7 @@ import me.chyxion.tigon.mybatis.event.TigonMyBatisReadyEvent;
 import org.apache.ibatis.builder.xml.XMLMapperEntityResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
+import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 
 /**
@@ -72,7 +73,6 @@ public class TigonMyBatisConfiguration implements InitializingBean {
             log.info("Register sql session factory [{}] tigon-mybatis.xml.", sqlSessionFactory);
             val config = sqlSessionFactory.getConfiguration();
             config.setMapUnderscoreToCamelCase(true);
-            config.addInterceptor(new KeyGenInterceptor());
 
             val sqlFragments = config.getSqlFragments();
             new XMLMapperBuilder(
@@ -100,6 +100,13 @@ public class TigonMyBatisConfiguration implements InitializingBean {
                                 config,
                                 "[Tigon]" + mapper.getName() + ".xml",
                                 sqlFragments).parse();
+                        if (argGenXml.isGenKeys()) {
+                            val mappedStatement = config.getMappedStatement(
+                                mapper.getName() + "." + Tag.INSERT.name().toLowerCase());
+                            log.debug("Replace statement [{}] JDBC3 key generator.", mappedStatement.getId());
+                            SystemMetaObject.forObject(mappedStatement)
+                                .setValue(Jdbc3KeyGen.MS_KEY_GEN_FIELD, Jdbc3KeyGen.INSTANCE);
+                        }
                     }
                 }
             }
@@ -145,7 +152,7 @@ public class TigonMyBatisConfiguration implements InitializingBean {
             log.debug("Generate SQL fragment [{}].", id);
 
             // SQL
-            if (element.tag() == MapperXmlEl.Tag.SQL) {
+            if (element.tag() == Tag.SQL) {
                 if (sqlFragments.containsKey(id)) {
                     log.info("SQL fragment [{}] existed, ignore generate.", id);
                     continue;
@@ -169,6 +176,7 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         }
 
         if (updated) {
+            argGenXml.setGenKeys(xmlProcessArg.isGenKeys());
             return toBytes(doc);
         }
 
@@ -249,12 +257,12 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         return mapperXmlElsRtn;
     }
 
-     void getAllInterfaces(final Set<Class<?>> interfaces, final Class<?> clazz) {
+    void getAllInterfaces(final Set<Class<?>> interfaces, final Class<?> clazz) {
         interfaces.add(clazz);
-         for (val it : clazz.getInterfaces()) {
+        for (val it : clazz.getInterfaces()) {
             getAllInterfaces(interfaces, it);
-         }
-     }
+        }
+    }
 
     Element xmlEl(final MapperXmlEl element, final XmlGenArg arg) {
         val doc = arg.getDocument();
@@ -272,17 +280,18 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         }
 
         // insert
-        if (tag == MapperXmlEl.Tag.INSERT) {
+        if (tag == Tag.INSERT) {
             val entityClass = arg.getEntityClass();
             val ugkAnnotation =
                     AnnotationUtils.findAnnotation(
                         entityClass, UseGeneratedKeys.class);
 
             if (ugkAnnotation != null) {
+                arg.setGenKeys(true);
                 el.setAttribute("useGeneratedKeys", "true");
-                val keyProp = ugkAnnotation.value();
-                if (StrUtils.isNotBlank(keyProp)) {
-                    el.setAttribute("keyProperty", keyProp);
+                val keyProps = ugkAnnotation.value();
+                if (keyProps != null && keyProps.length > 0) {
+                    el.setAttribute("keyProperty", StrUtils.join(keyProps, ","));
                 }
             }
         }
@@ -318,5 +327,6 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         private final Configuration configuration;
         private Class<SuperMapper<?>> mapperClass;
         private List<MapperXmlEl> mapperXmlEls;
+        private boolean genKeys;
     }
 }

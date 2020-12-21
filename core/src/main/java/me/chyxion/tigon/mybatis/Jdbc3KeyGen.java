@@ -3,22 +3,20 @@ package me.chyxion.tigon.mybatis;
 import lombok.var;
 import lombok.val;
 import java.util.*;
-import lombok.Getter;
 import java.sql.ResultSet;
 import java.sql.Statement;
 import java.sql.SQLException;
 import lombok.extern.slf4j.Slf4j;
 import java.sql.ResultSetMetaData;
-import lombok.RequiredArgsConstructor;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.mapping.MappedStatement;
+import me.chyxion.tigon.mybatis.util.EntityUtils;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.executor.ExecutorException;
-import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
 
 /**
@@ -28,10 +26,10 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
  * @date 2017/1/9 14:46
  */
 @Slf4j
-@RequiredArgsConstructor
 class Jdbc3KeyGen implements KeyGenerator {
-    @Getter
-    private final KeyGenerator originKeyGen;
+
+    static final Jdbc3KeyGen INSTANCE = new Jdbc3KeyGen();
+    static final String MS_KEY_GEN_FIELD = "keyGenerator";
 
     /**
      * {@inheritDoc}
@@ -57,8 +55,9 @@ class Jdbc3KeyGen implements KeyGenerator {
             val configuration = ms.getConfiguration();
             val typeHandlerRegistry = configuration.getTypeHandlerRegistry();
             var keyProps = ms.getKeyProperties();
+
             if (keyProps == null || keyProps.length == 0) {
-                keyProps = new String[] { "id" };
+                keyProps = new String[] { EntityUtils.ID };
             }
 
             val rsmd = rs.getMetaData();
@@ -84,10 +83,6 @@ class Jdbc3KeyGen implements KeyGenerator {
         catch (Exception e) {
             throw new ExecutorException(
                 "Error getting generated key or setting result to params object. Cause: " + e, e);
-        }
-        finally {
-            // set original Key Generator back
-            SystemMetaObject.forObject(ms).setValue("keyGenerator", originKeyGen);
         }
     }
 

@@ -11,8 +11,7 @@ import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.INSERT;
  */
 @SuppressWarnings("hiding")
 @MapperXmlEl(tag = INSERT, id = "insert")
-public interface BaseInsertMapper<Entity>
-    extends SuperMapper<Entity> {
+public interface BaseInsertMapper<Entity> extends SuperMapper<Entity> {
 
     /**
      * insert entity

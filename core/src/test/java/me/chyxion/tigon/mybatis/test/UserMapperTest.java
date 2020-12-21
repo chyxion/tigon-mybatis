@@ -84,12 +84,18 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
         user.setCreatedBy("donghuang");
         user.setCreatedAt(new Date());
         mapper.insert(user);
+        Assert.state(user.getId() != null,
+            "Test @UseGeneratedKeys failed");
     }
 
     @Test
     public void testRun() {
-        val userListFound = mapper.list(null);
+        val userListFound = mapper.list(new Search());
         Assert.state(userListFound.size() == testCaseSize, "Test list failed");
+        Assert.state(mapper.list(Arrays.asList(1, 2, 3)).size() == 3,
+            "Test list by id collection failed");
+        Assert.state(mapper.list(new Integer[]{1, 2, 3}).size() == 3,
+            "Test list by id array failed");
         Assert.state(mapper.count(null) == testCaseSize, "Test count failed");
         Assert.state(mapper.count(new Search("account", donghuang)) == 1, "Test count failed");
         Assert.state(mapper.find(new Search("account", donghuang)).getAccount().equals(donghuang), "Test find failed");
@@ -139,6 +145,12 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
         Assert.state(mapper.find(new Search(3)
                         .eq("remark", null)).getRemark() == null,
             "Test eq NULL failed");
+        Assert.state(mapper.find(
+                new Search(10).notNull("remark")).getRemark() != null,
+            "Test notNull failed");
+        Assert.state(mapper.find(
+                new Search(10).ne("remark", null)).getRemark() != null,
+            "Test notNull failed");
 
         mapper.setNull("remark", new Search().between("id", 6, 8));
 
@@ -153,5 +165,13 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
             val idMod2 = user.getId() % 2;
             Assert.state(idMod2 == 1 || idMod2 == 3, "Test Search#build failed");
         }
+
+        val deleteId = 7;
+        mapper.delete(deleteId);
+        Assert.state(mapper.find(deleteId) == null, "Test delete failed");
+
+        val deleteId2 = 9;
+        mapper.delete(new Search(deleteId2));
+        Assert.state(mapper.find(deleteId2) == null, "Test delete failed");
     }
 }

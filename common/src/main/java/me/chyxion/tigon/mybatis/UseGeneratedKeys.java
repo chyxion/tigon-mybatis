@@ -17,5 +17,5 @@ public @interface UseGeneratedKeys {
      * keyProperty
      * @return keyProperty
      */
-    String value() default "";
+    String[] value() default {};
 }

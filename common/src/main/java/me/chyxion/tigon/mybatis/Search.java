@@ -80,7 +80,7 @@ public class Search implements Serializable {
      * @param value id value
      */
     public Search(final Object value) {
-        eq("id", value);
+        this("id", value);
     }
 
     /**
@@ -152,16 +152,15 @@ public class Search implements Serializable {
         }
 
         if (value instanceof Collection) {
-            in(col, (Collection<?>) value);
-        }
-        else if (value != null && value.getClass().isArray()) {
-            // may primitive, (Object[]) causes exception
-            in(col, arrayToList(value));
-        }
-        else {
-            criteria.add(new Criterion(EQ, col, value));
+            return in(col, (Collection<?>) value);
         }
 
+        if (value.getClass().isArray()) {
+            // may primitive, (Object[]) causes exception
+            return in(col, arrayToList(value));
+        }
+
+        criteria.add(new Criterion(EQ, col, value));
         return this;
     }
 
@@ -362,6 +361,15 @@ public class Search implements Serializable {
     public Search ne(final String col, final Object value) {
         if (value == null) {
             return notNull(col);
+        }
+
+        if (value instanceof Collection) {
+            return notIn(col, (Collection<?>) value);
+        }
+
+        if (value.getClass().isArray()) {
+            // may primitive, (Object[]) causes exception
+            return notIn(col, arrayToList(value));
         }
 
         criteria.add(new Criterion(NE, col, value));

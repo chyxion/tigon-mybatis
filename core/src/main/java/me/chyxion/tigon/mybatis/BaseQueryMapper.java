@@ -1,6 +1,7 @@
 package me.chyxion.tigon.mybatis;
 
 import java.util.List;
+import java.util.Collection;
 import org.apache.ibatis.annotations.Param;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.SELECT;
@@ -17,8 +18,7 @@ import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.RESULT_TYPE
 @MapperXmlEl(tag = SELECT, id = "findCol", resultType = "object", include = "Tigon.selectCol")
 @MapperXmlEl(tag = SELECT, id = "list", resultType = RESULT_TYPE_ENTITY)
 @MapperXmlEl(tag = SELECT, id = "listCol", resultType = "object", include = "Tigon.selectCol")
-public interface BaseQueryMapper<PrimaryKey, Entity>
-    extends SuperMapper<Entity> {
+public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity> {
 
     /**
      * count by search
@@ -59,10 +59,31 @@ public interface BaseQueryMapper<PrimaryKey, Entity>
 
     /**
      * list by search
+     *
      * @param search search
      * @return list result or empty list
      */
     List<Entity> list(@Param(PARAM_SEARCH_KEY) Search search);
+
+    /**
+     * list by primary keys
+     *
+     * @param keys primary keys
+     * @return list result or empty list
+     */
+    default List<Entity> list(final Collection<PrimaryKey> keys) {
+        return list(new Search(keys));
+    }
+
+    /**
+     * list by primary keys
+     *
+     * @param keys primary keys
+     * @return list result or empty list
+     */
+    default List<Entity> list(final PrimaryKey[] keys) {
+        return list(new Search(keys));
+    }
 
     /**
      * list col by search
