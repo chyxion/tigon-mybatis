@@ -135,21 +135,22 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
         mapper.setNull("remark", new Search(3));
         var user3 = mapper.find(3);
         Assert.state(user3.getRemark() == null, "Test setNull failed");
-        mapper.setNull(new String[] {"remark", "avatar"}, new Search(3));
+        mapper.setNull(new String[] {"remark", "updatedBy"}, new Search(3));
+
         user3 = mapper.find(3);
         Assert.state(user3.getRemark() == null &&
-            user3.getAvatar() == null, "Test setNull failed");
+            user3.getUpdatedBy() == null, "Test setNull failed");
         Assert.state(mapper.find(new Search(3)
-                        .isNull("remark")).getRemark() == null,
+                        .isNull("updatedBy")).getRemark() == null,
             "Test isNull failed");
         Assert.state(mapper.find(new Search(3)
-                        .eq("remark", null)).getRemark() == null,
+                        .eq("updatedBy", null)).getRemark() == null,
             "Test eq NULL failed");
         Assert.state(mapper.find(
-                new Search(10).notNull("remark")).getRemark() != null,
+                new Search(10).notNull("updatedBy")).getRemark() != null,
             "Test notNull failed");
         Assert.state(mapper.find(
-                new Search(10).ne("remark", null)).getRemark() != null,
+                new Search(10).ne("updatedBy", null)).getRemark() != null,
             "Test notNull failed");
 
         mapper.setNull("remark", new Search().between("id", 6, 8));

@@ -147,11 +147,13 @@
         <choose>
         <when test="_parameter.containsKey(&quot;__cols__&quot;)">
             <foreach item="__col__" collection="__cols__" separator=", ">
-                ${__col__} = null
+                <bind name="__us_col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(__col__)" />
+                ${__us_col__} = null
             </foreach>
         </when>
         <otherwise>
-            ${__col__} = null
+            <bind name="__us_col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(__col__)" />
+            ${__us_col__} = null
         </otherwise>
         </choose>
         <include refid="Tigon.search" />
