@@ -110,10 +110,9 @@
         set
         <choose>
             <when test="__model__ instanceof java.util.Map">
-                <bind name="__update_map__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@toColMap(__model__)" />
-                <foreach collection="__update_map__" index="__m_col__" item="__val__" separator=", ">
-                    ${__m_col__} =
-                    <include refid="Tigon.__val__" />
+                <foreach collection="__model__" index="__col__" item="__val__" separator=", ">
+                    <bind name="__us_col__" value="@me.chyxion.tigon.mybatis.util.StrUtils@camelToUnderscore(__col__)" />
+                    ${__us_col__} = <include refid="Tigon.__val__" />
                 </foreach>
             </when>
             <otherwise>
@@ -122,8 +121,7 @@
                 </if>
                 <foreach collection="@me.chyxion.tigon.mybatis.util.EntityUtils@updateMap(__model__)"
                          index="__m_col__" item="__val__" separator=", ">
-                    ${__m_col__} =
-                    <include refid="Tigon.__val__" />
+                    ${__m_col__} = <include refid="Tigon.__val__" />
                 </foreach>
             </otherwise>
         </choose>
@@ -133,8 +131,8 @@
             <include refid="Tigon.search" />
         </when>
         <otherwise>
-            <bind name="__primary_key_value__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@primaryKeyValue(__model__)" />
-            where <include refid="primaryKey" /> = #{__primary_key_value__}
+            <bind name="__primary_key_val__" value="@me.chyxion.tigon.mybatis.util.EntityUtils@primaryKeyValue(__model__)" />
+            where <include refid="primaryKey" /> = #{__primary_key_val__}
         </otherwise>
         </choose>
     </sql>

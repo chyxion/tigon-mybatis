@@ -130,7 +130,14 @@ public class UserMapperTest extends AbstractTransactionalJUnit4SpringContextTest
 
         val update = new HashMap<String, Object>();
         update.put("remark", "update remark id gt 3 and lt 6");
+        val updatedBy = "donghuang.cxn";
+        update.put("updatedBy", updatedBy);
+        update.put("updatedAt", new Date());
         mapper.update(update, new Search().gt("id", 3).lt("id", 6));
+        Assert.state(mapper.find(4).getUpdatedBy().equals(updatedBy),
+            "Test update map failed");
+        Assert.state(mapper.find(5).getUpdatedBy().equals(updatedBy),
+            "Test update map failed");
 
         mapper.setNull("remark", new Search(3));
         var user3 = mapper.find(3);

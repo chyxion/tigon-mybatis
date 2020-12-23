@@ -101,21 +101,6 @@ public final class EntityUtils {
     }
 
     /**
-     * to col map
-     * called in tigon-mybatis.xml
-     *
-     * @param map map
-     * @return col map
-     */
-    public static <T> Map<String, T> toColMap(final Map<String, T> map) {
-        val mapRtn = new LinkedHashMap<String, T>(map.size());
-        for (val kv : map.entrySet()) {
-            mapRtn.put(StrUtils.camelToUnderscore(kv.getKey()), kv.getValue());
-        }
-        return mapRtn;
-    }
-
-    /**
      * return entity cols
      * @param clazz entity class
      * @return entity cols
