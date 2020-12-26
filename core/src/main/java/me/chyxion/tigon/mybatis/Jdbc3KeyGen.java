@@ -17,7 +17,9 @@ import org.apache.ibatis.mapping.MappedStatement;
 import me.chyxion.tigon.mybatis.util.EntityUtils;
 import org.apache.ibatis.type.TypeHandlerRegistry;
 import org.apache.ibatis.executor.ExecutorException;
+import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.executor.keygen.KeyGenerator;
+import org.apache.ibatis.executor.keygen.Jdbc3KeyGenerator;
 
 /**
  * JDBC3 key generator, supports multiple keys return
@@ -27,7 +29,6 @@ import org.apache.ibatis.executor.keygen.KeyGenerator;
  */
 @Slf4j
 class Jdbc3KeyGen implements KeyGenerator {
-
     static final Jdbc3KeyGen INSTANCE = new Jdbc3KeyGen();
     static final String MS_KEY_GEN_FIELD = "keyGenerator";
 
@@ -83,6 +84,11 @@ class Jdbc3KeyGen implements KeyGenerator {
         catch (Exception e) {
             throw new ExecutorException(
                 "Error getting generated key or setting result to params object. Cause: " + e, e);
+        }
+        finally {
+            // set back original key generator
+            SystemMetaObject.forObject(ms).setValue(
+                MS_KEY_GEN_FIELD, Jdbc3KeyGenerator.INSTANCE);
         }
     }
 

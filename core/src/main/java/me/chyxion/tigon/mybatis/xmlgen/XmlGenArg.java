@@ -2,7 +2,6 @@ package me.chyxion.tigon.mybatis.xmlgen;
 
 import lombok.val;
 import lombok.Getter;
-import lombok.Setter;
 import org.w3c.dom.Document;
 import lombok.extern.slf4j.Slf4j;
 import me.chyxion.tigon.mybatis.Table;
@@ -26,8 +25,6 @@ public class XmlGenArg {
     private final Class<SuperMapper<?>> mapperClass;
     private final Class<?> entityClass;
     private final String table;
-    @Setter
-    private boolean genKeys;
 
     public XmlGenArg(final XPathParser parser,
                      final Document document,

@@ -68,25 +68,35 @@ public class TigonMyBatisConfiguration implements InitializingBean {
             () -> "No unique resource [" + path + "] found");
         val resource = resources[0];
         log.info("Tigon namespace XML resource [{}] found.", resource);
+        val keyGenInterceptor = new KeyGenInterceptor();
 
         for (val sqlSessionFactory : sqlSessionFactories) {
-            log.info("Register sql session factory [{}] tigon-mybatis.xml.", sqlSessionFactory);
             val config = sqlSessionFactory.getConfiguration();
-            config.setMapUnderscoreToCamelCase(true);
-
             val sqlFragments = config.getSqlFragments();
-            new XMLMapperBuilder(
-                    resourceInputStream(resource),
-                    config,
-                    resource.toString(),
-                    sqlFragments).parse();
 
             val argGenXml = new ArgGenXml(
                     new XMLMapperEntityResolver(),
                     config);
 
+            boolean mapperFound = false;
+
             for (val mapper : config.getMapperRegistry().getMappers()) {
                 if (SuperMapper.class.isAssignableFrom(mapper)) {
+                    if (!mapperFound) {
+                        log.info("Register SQL session factory [{}] 'tigon-mybatis.xml'", sqlSessionFactory);
+                        new XMLMapperBuilder(
+                                resourceInputStream(resource),
+                                config,
+                                resource.toString(),
+                                sqlFragments).parse();
+
+                        log.info("Update SQL session factory [{}] `MapUnderscoreToCamelCase' to true", sqlSessionFactory);
+                        config.setMapUnderscoreToCamelCase(true);
+                        log.info("Add SQL session factory [{}] JDBC3 key gen interceptor", sqlSessionFactory);
+                        config.addInterceptor(keyGenInterceptor);
+                        mapperFound = true;
+                    }
+
                     log.info("Generate mapper class [{}].", mapper);
                     argGenXml.setMapperClass((Class<SuperMapper<?>>) mapper);
                     argGenXml.setMapperXmlEls(getMapperXmlEls(mapper));
@@ -100,13 +110,6 @@ public class TigonMyBatisConfiguration implements InitializingBean {
                                 config,
                                 "[Tigon]" + mapper.getName() + ".xml",
                                 sqlFragments).parse();
-                        if (argGenXml.isGenKeys()) {
-                            val mappedStatement = config.getMappedStatement(
-                                mapper.getName() + "." + Tag.INSERT.name().toLowerCase());
-                            log.debug("Replace statement [{}] JDBC3 key generator.", mappedStatement.getId());
-                            SystemMetaObject.forObject(mappedStatement)
-                                .setValue(Jdbc3KeyGen.MS_KEY_GEN_FIELD, Jdbc3KeyGen.INSTANCE);
-                        }
                     }
                 }
             }
@@ -176,7 +179,6 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         }
 
         if (updated) {
-            argGenXml.setGenKeys(xmlProcessArg.isGenKeys());
             return toBytes(doc);
         }
 
@@ -287,7 +289,6 @@ public class TigonMyBatisConfiguration implements InitializingBean {
                         entityClass, UseGeneratedKeys.class);
 
             if (ugkAnnotation != null) {
-                arg.setGenKeys(true);
                 el.setAttribute("useGeneratedKeys", "true");
                 val keyProps = ugkAnnotation.value();
                 if (keyProps != null && keyProps.length > 0) {
@@ -327,6 +328,5 @@ public class TigonMyBatisConfiguration implements InitializingBean {
         private final Configuration configuration;
         private Class<SuperMapper<?>> mapperClass;
         private List<MapperXmlEl> mapperXmlEls;
-        private boolean genKeys;
     }
 }
