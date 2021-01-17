@@ -1,7 +1,9 @@
 package me.chyxion.tigon.mybatis;
 
+import lombok.val;
 import java.util.List;
 import java.util.Collection;
+import java.util.function.Consumer;
 import org.apache.ibatis.annotations.Param;
 import me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl;
 import static me.chyxion.tigon.mybatis.xmlgen.annotation.MapperXmlEl.Tag.SELECT;
@@ -22,6 +24,7 @@ public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity>
 
     /**
      * count by search
+     *
      * @param search search
      * @return count
      */
@@ -29,6 +32,7 @@ public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity>
 
     /**
      * find one by search
+     *
      * @param search search
      * @return true if exists rows
      */
@@ -36,6 +40,7 @@ public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity>
 
     /**
      * find one by search
+     *
      * @param search search
      * @return find result or null
      */
@@ -43,6 +48,7 @@ public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity>
 
     /**
      * find one by PrimaryKey
+     *
      * @param primaryKey primaryKey
      * @return find result or null
      */
@@ -88,9 +94,26 @@ public interface BaseQueryMapper<PrimaryKey, Entity> extends SuperMapper<Entity>
     /**
      * list col by search
      *
-     * @param col select col
+     * @param col    select col
      * @param search search
      * @return list result or empty list
      */
     <T> List<T> listCol(@Param(PARAM_COL_KEY) String col, @Param(PARAM_SEARCH_KEY) Search search);
+
+    /**
+     * scan entities
+     *
+     * @param pageSize page size
+     * @param search search
+     * @param scanner scanner
+     */
+    default void scan(final int pageSize, final Search search, final Consumer<Entity> scanner) {
+        val total = count(search);
+
+        if (total > 0) {
+            for (int start = 0; start < total; start += pageSize) {
+                list(search.offset(start).limit(Math.min(pageSize, total - start))).forEach(scanner::accept);
+            }
+        }
+    }
 }

@@ -83,7 +83,7 @@ class Jdbc3KeyGen implements KeyGenerator {
         }
         catch (Exception e) {
             throw new ExecutorException(
-                "Error getting generated key or setting result to params object. Cause: " + e, e);
+                "Error getting generated key or setting result to params object", e);
         }
         finally {
             // set back original key generator
